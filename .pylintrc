@@ -1,0 +1,12 @@
+[MESSAGE CONTROL]
+
+disable=unspecified-encoding,
+    missing-module-docstring,
+    missing-function-docstring
+
+
+[REFACTORING]
+
+good-names-rgxs=^[_a-z][_a-z0-9]?$
+
+module-rgx=^[_a-z0-9][_a-z0-9\-]*$
