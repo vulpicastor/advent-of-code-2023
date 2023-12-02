@@ -1,15 +1,7 @@
 #!/usr/bin/env python3
 
-# pylint: disable=unused-import
-import collections
-import functools
-import io
-import itertools
-import operator as op
 import re
-import timeit
 
-import numpy as np
 import aocd
 
 YEAR = 2023
@@ -59,11 +51,10 @@ zoneight234
     data = aocd.get_data(day=DAY, year=YEAR)
     inlist = [l for l in data.split('\n') if l]
 
-    # answer = sum(cal_val(s) for s in inlist)
-    # print(answer)
-    # aocd.submit(answer, part='a', day=DAY, year=YEAR)
+    answer = sum(cal_val(s) for s in inlist)
+    print(answer)
+    aocd.submit(answer, part='a', day=DAY, year=YEAR)
 
-    [print(s, cal_val_2(s)) for s in inlist]
     answer = sum(cal_val_2(s) for s in inlist)
     print(answer)
     aocd.submit(answer, part='b', day=DAY, year=YEAR)
