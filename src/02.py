@@ -1,15 +1,8 @@
 #!/usr/bin/env python3
 
-# pylint: disable=unused-import
-import collections
 import functools
-import io
-import itertools
 import operator as op
-import re
-import timeit
 
-import numpy as np
 import aocd
 
 YEAR = 2023
@@ -68,9 +61,10 @@ Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green
         games[k] = v
 
     bag_content = {'red': 12, 'green': 13, 'blue': 14}
-    answer = sum(game_id for game_id, trial_list in games.items() if is_game_possible(trial_list, bag_content))
+    answer = sum(game_id for game_id, trial_list in games.items()
+                 if is_game_possible(trial_list, bag_content))
     print(answer)
-    # aocd.submit(answer, part='a', day=DAY, year=YEAR)
+    aocd.submit(answer, part='a', day=DAY, year=YEAR)
 
     answer = sum(functools.reduce(op.mul, fewest_bag(g).values()) for g in games.values())
     print(answer)
