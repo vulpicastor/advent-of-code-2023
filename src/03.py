@@ -1,42 +1,13 @@
 #!/usr/bin/env python3
 
-# pylint: disable=unused-import
 import collections
-import functools
-import io
 import itertools
-import operator as op
-import re
-import timeit
 
 import numpy as np
 import aocd
 
 YEAR = 2023
 DAY = 3
-
-
-def is_empty(a):
-    return a == '.'
-
-
-def is_num(a):
-    mask = np.zeros_like(a, dtype=bool)
-    for i in range(10):
-        mask |= a == str(i)
-    return mask
-
-
-def num_adj_symbol(a):
-    nrow, ncol = a.shape
-    mask = np.zeros((nrow+2, ncol+2), dtype=bool)
-    empty_mask = is_empty(a)
-    num_mask = is_num(a)
-    symbol_mask = np.logical_not(empty_mask | num_mask)
-    for di, dj in itertools.product([-1, 0, 1], [-1, 0, 1]):
-        mask[1+di:nrow+1+di, 1+dj:ncol+1+dj] |= symbol_mask
-    mask[1:-1, 1:-1] &= num_mask
-    return mask[1:-1, 1:-1]
 
 
 def parse_grid(grid):
@@ -67,25 +38,23 @@ def parse_grid(grid):
                 buffer.clear()
         # End-of-line edge case. Ouch!
         if in_num:
-            pos.append(j+1)
+            pos.append(len(row))
             num_coords[tuple(pos)] = int(''.join(buffer))
     return num_coords, symb_coords
 
 
-def is_adj_symb(pos, symb_coords, v):
+def is_adj_symb(pos, symb_coords):
     i, j0, j1 = pos
     for di, j in itertools.product([-1, 1], range(j0-1, j1+1)):
         if (i + di, j) in symb_coords:
-            # print('Good', pos, v, symb_coords[(i + di, j)])
             return True
     for j in [j0 - 1, j1]:
         if (i, j) in symb_coords:
-            # print('Good', pos, v, symb_coords[(i, j)])
             return True
     return False
 
 
-def find_adj_gear(pos, symb_coords, v):
+def find_adj_gear(pos, symb_coords):
     i, j0, j1 = pos
     adj_symbs = []
     for di, j in itertools.product([-1, 1], range(j0-1, j1+1)):
@@ -102,15 +71,15 @@ def find_adj_gear(pos, symb_coords, v):
 def list_num_adj_symb(num_coords, symb_coords):
     num_list = []
     for pos, v in num_coords.items():
-        if is_adj_symb(pos, symb_coords, v):
+        if is_adj_symb(pos, symb_coords):
             num_list.append(v)
     return num_list
+
 
 def list_num_adj_gear(num_coords, symb_coords):
     gear_dict = collections.defaultdict(list)
     for pos, v in num_coords.items():
-        if gear_list := find_adj_gear(pos, symb_coords, v):
-            print(gear_list)
+        if gear_list := find_adj_gear(pos, symb_coords):
             for g in gear_list:
                 gear_dict[g].append(v)
     return gear_dict
@@ -128,17 +97,10 @@ def main():
 ...$.*....
 .664.598.."""
     data = aocd.get_data(day=DAY, year=YEAR)
-    inlist = [list(l) for l in data.split('\n') if l]
-    # print(inlist)
-    grid = np.array(inlist)
-    print(grid)
+    grid = [list(l) for l in data.split('\n') if l]
 
     num_c, sym_c = parse_grid(grid)
-    print(num_c)
-    print(sym_c)
-    # print(list_num_adj_symb(num_c, sym_c))
     answer = sum(list_num_adj_symb(num_c, sym_c))
-    # print(answer)
     aocd.submit(answer, part='a', day=DAY, year=YEAR)
 
     answer = sum(np.prod(x) for x in list_num_adj_gear(num_c, sym_c).values() if len(x) == 2)
