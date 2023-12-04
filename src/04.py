@@ -1,14 +1,5 @@
 #!/usr/bin/env python3
 
-# pylint: disable=unused-import
-import collections
-import functools
-import io
-import itertools
-import operator as op
-import re
-import timeit
-
 import numpy as np
 import aocd
 
@@ -59,17 +50,6 @@ def count_copies(cards):
     return counts
 
 
-def make_count_copies(copies):
-    @functools.cache
-    def count_copies(i):
-        count = 1
-        for c in copies[i]:
-            count += count_copies(c)
-        return count
-
-
-
-
 def main():
     data = """Card 1: 41 48 83 86 17 | 83 86  6 31 17  9 48 53
 Card 2: 13 32 20 16 61 | 61 30 68 82 17 32 24 19
@@ -84,7 +64,7 @@ Card 6: 31 18 13 56 72 | 74 77 10 23 35 67 36 11
 
     answer = sum(count_winning(*c) for c in cards)
     print(answer)
-    # aocd.submit(answer, part='a', day=DAY, year=YEAR)
+    aocd.submit(answer, part='a', day=DAY, year=YEAR)
 
     tallies = tally_copies(cards)
     counts = count_copies(tallies)
