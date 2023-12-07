@@ -1,15 +1,8 @@
 #!/usr/bin/env python3
 
-# pylint: disable=unused-import
 import collections
 import functools
-import io
-import itertools
-import operator as op
-import re
-import timeit
 
-import numpy as np
 import aocd
 
 YEAR = 2023
@@ -96,6 +89,10 @@ class JokerHand(Hand):
 
 def main():
     test_cases = ['AAAAA', 'AA8AA', '23332', 'TTT98', '23432', 'A23A4', '23456']
+    for t in test_cases:
+        print(t, Hand(t).type)
+    print()
+
     data = """32T3K 765
 T55J5 684
 KK677 28
@@ -108,19 +105,15 @@ QQQJA 483
     for c, t in inlist:
         deck.append((Hand(c), int(t)))
     deck.sort()
-    # [print(d) for d in deck]
 
-    # for t in test_cases:
-    #     print(t, Hand(t).type)
     answer = sum((i + 1) * b for i, (_, b) in enumerate(deck))
     print(answer)
-    # aocd.submit(answer, part='a', day=DAY, year=YEAR)
+    aocd.submit(answer, part='a', day=DAY, year=YEAR)
 
     deck2 = []
     for c, t in inlist:
         deck2.append((JokerHand(c), int(t)))
     deck2.sort()
-    [print(c, c.type, c.values) for c, _ in deck2]
     answer = sum((i + 1) * b for i, (_, b) in enumerate(deck2))
     print(answer)
     aocd.submit(answer, part='b', day=DAY, year=YEAR)
