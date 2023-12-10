@@ -1,14 +1,5 @@
 #!/usr/bin/env python3
 
-# pylint: disable=unused-import
-import collections
-import functools
-import io
-import itertools
-import operator as op
-import re
-import timeit
-
 import numpy as np
 import aocd
 
@@ -16,17 +7,6 @@ YEAR = 2023
 DAY = 10
 
 
-GOTO = [
-    # {'-': (np.array([0, 1]), 0), '7': (np.array([]))}
-]
-# PIPES = {
-#     '|': np.array([[-1,  0], [ 1,  0]]),
-#     '-': np.array([[ 0, -1], [ 0,  1]]),
-#     'L': np.array([[-1,  0], [ 0,  1]]),
-#     'J': np.array([[-1,  0], [ 0, -1]]),
-#     '7': np.array([[ 0, -1], [ 1,  0]]),
-#     'F': np.array([[ 0,  1], [ 1,  0]]),
-# }
 PIPES = {
     '|': (1, 3),
     '-': (0, 2),
@@ -56,21 +36,17 @@ def _make_rules(pipes, dirs):
     return walk_rules
 WALK_RULES = _make_rules(PIPES, DIRECTIONS)
 
-# def bidi_walk(grid, start):
-    # st
-    # for i, d in DIRECTIONS:
-        # test_pos = start + d
 
 class Walker:
 
-    def __init__(self, grid, pos, dir):
+    def __init__(self, grid, pos, d):
         self.grid = grid
         self.pos = pos
-        self.dir = dir
+        self.dir = d
         self.dist = 0
         self.ltube = []
         self.rtube = []
- 
+
     def step(self):
         pipe = self.grid[tuple(self.pos)]
         self.dir, delta, left = WALK_RULES[self.dir][pipe]
@@ -78,17 +54,12 @@ class Walker:
         self.rtube.append(self.pos - 0.5 * left)
         self.pos += delta
         self.dist += 1
-    
-    def add_tube(self):
-        pass
 
 
 def bidi_walk(grid):
     start = np.argwhere(grid == 'S')[0]
     walkers = []
-    # pos_lists = [[], []]
     for d, delta in enumerate(DIRECTIONS):
-        # print(tuple(start + delta))
         test_start = start + delta
         if np.all(test_start >= 0) and (test_pipe := grid[tuple(test_start)]) in PIPES:
             if test_pipe in WALK_RULES[d]:
@@ -103,23 +74,16 @@ def walk(grid):
     start = np.argwhere(grid == 'S')[0]
     start_dirs = []
     for d, delta in enumerate(DIRECTIONS):
-        # print(tuple(start + delta))
         test_start = start + delta
         if np.all(test_start >= 0) and (test_pipe := grid[tuple(test_start)]) in PIPES:
             if test_pipe in WALK_RULES[d]:
                 start_dirs.append(d)
     grid[tuple(start)] = DIRS_TO_PIPE[tuple(start_dirs)]
-    # print(grid)
     walker = Walker(grid, np.copy(start), (start_dirs[0] + 2) % 4)
     walker.step()
     while np.any(walker.pos != start):
-        # print(walker.pos)
         walker.step()
-    print(start, walker.pos)
-    print(walker.ltube)
-    print(walker.rtube)
     return np.column_stack(walker.ltube), np.column_stack(walker.rtube)
-    # walkers.append(Walker(grid, test_start, d))
 
 
 def shoelace(xy):
@@ -157,13 +121,12 @@ L---JF-JLJ.||-FJLJJ7
 L.L7LFJ|||||FJL7||LJ
 L7JLJL-JLJLJL--JLJ.L
 """
-    # print(WALK_RULES)
     data = aocd.get_data(day=DAY, year=YEAR)
     grid = np.array([list(l) for l in data.split('\n') if l])
 
     answer = bidi_walk(grid)
-    # print(answer)
-    # aocd.submit(answer, part='a', day=DAY, year=YEAR)
+    print(answer)
+    aocd.submit(answer, part='a', day=DAY, year=YEAR)
 
     lxy, rxy = walk(grid)
     answer = int(min(abs(shoelace(lxy)), abs(shoelace(rxy))))
