@@ -24,14 +24,20 @@ DIRECTIONS = [
 ]
 
 
+# WALK_RULES is a list of dicts. The list index is the direction the walker is
+# facing. The dict key is the shape of the pipe at current position. The dict
+# value is a tuple of (new direction, offset to apply to position, offset to the
+# left edge). Precomputing this info simplifies walker stepping.
 def _make_rules(pipes, dirs):
     walk_rules = [{}, {}, {}, {}]
     for p, (a, b) in pipes.items():
+        # Keep track of the left edge vertex offset.
         if np.all(dirs[a] + dirs[b] == 0):
             left = DIRECTIONS[(a + 1) % 4]
         else:
             left = dirs[a] + dirs[b]
         walk_rules[(a + 2) % 4][p] = (b, dirs[b], left)
+        # The right edge vertex offset is just the inverse.
         walk_rules[(b + 2) % 4][p] = (a, dirs[a], -left)
     return walk_rules
 WALK_RULES = _make_rules(PIPES, DIRECTIONS)
@@ -50,6 +56,7 @@ class Walker:
     def step(self):
         pipe = self.grid[tuple(self.pos)]
         self.dir, delta, left = WALK_RULES[self.dir][pipe]
+        # Track the vertices of the left and right edges.
         self.ltube.append(self.pos + 0.5 * left)
         self.rtube.append(self.pos - 0.5 * left)
         self.pos += delta
@@ -59,6 +66,7 @@ class Walker:
 def bidi_walk(grid):
     start = np.argwhere(grid == 'S')[0]
     walkers = []
+    # Figure out where to intialize the two walkers adjacent to the start.
     for d, delta in enumerate(DIRECTIONS):
         test_start = start + delta
         if np.all(test_start >= 0) and (test_pipe := grid[tuple(test_start)]) in PIPES:
@@ -78,7 +86,9 @@ def walk(grid):
         if np.all(test_start >= 0) and (test_pipe := grid[tuple(test_start)]) in PIPES:
             if test_pipe in WALK_RULES[d]:
                 start_dirs.append(d)
+    # Rewrite the 'S' with the correct pipe type.
     grid[tuple(start)] = DIRS_TO_PIPE[tuple(start_dirs)]
+    # Initialize the walker at 'S', having come from one of the adjacent pipes.
     walker = Walker(grid, np.copy(start), (start_dirs[0] + 2) % 4)
     walker.step()
     while np.any(walker.pos != start):
@@ -128,6 +138,14 @@ L7JLJL-JLJLJL--JLJ.L
     print(answer)
     aocd.submit(answer, part='a', day=DAY, year=YEAR)
 
+    # Keep track of vertices forming the "left" and "right" edges of our path at
+    # half-integer grid locations. Then, use the shoelace formula to evaluate
+    # the enclosed area of the polygon from the vertices. The smaller of the
+    # absolute value of the signed enclosed area is the answer. The requirement
+    # to count the "junk" pipes actually makes our life easier, because we'd
+    # otherwise have to detect those junk pipes.
+    # The shoelace formula only works for simple polygons. Thankfully, pipes
+    # cannot intersect, satisfying the requirement.
     lxy, rxy = walk(grid)
     answer = int(min(abs(shoelace(lxy)), abs(shoelace(rxy))))
     print(answer)
