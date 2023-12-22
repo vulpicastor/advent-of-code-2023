@@ -1,14 +1,5 @@
 #!/usr/bin/env python3
 
-# pylint: disable=unused-import
-import collections
-import functools
-import io
-import itertools
-import operator as op
-import re
-import timeit
-
 import numpy as np
 import aocd
 
@@ -45,7 +36,7 @@ def main():
 
     answer = sum(diff_extrap(a) for a in inlist)
     print(answer)
-    # aocd.submit(answer, part='a', day=DAY, year=YEAR)
+    aocd.submit(answer, part='a', day=DAY, year=YEAR)
 
     answer = sum(diff_extrap_left(a) for a in inlist)
     print(answer)
