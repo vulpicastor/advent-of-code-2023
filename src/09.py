@@ -24,6 +24,17 @@ def diff_extrap(a):
     return sum(last)
 
 
+def diff_extrap_left(a):
+    first = []
+    while np.any(a):
+        first.append(a[0])
+        a = np.diff(a)
+    x = first.pop()
+    while first:
+        x = first.pop() - x
+    return x
+
+
 def main():
     data = """0 3 6 9 12 15
 1 3 6 10 15 21
@@ -34,11 +45,11 @@ def main():
 
     answer = sum(diff_extrap(a) for a in inlist)
     print(answer)
-    aocd.submit(answer, part='a', day=DAY, year=YEAR)
+    # aocd.submit(answer, part='a', day=DAY, year=YEAR)
 
-    # answer = 
-    # print(answer)
-    # aocd.submit(answer, part='b', day=DAY, year=YEAR)
+    answer = sum(diff_extrap_left(a) for a in inlist)
+    print(answer)
+    aocd.submit(answer, part='b', day=DAY, year=YEAR)
 
 
 if __name__ == '__main__':
