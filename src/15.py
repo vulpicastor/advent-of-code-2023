@@ -1,15 +1,7 @@
 #!/usr/bin/env python3
 
-# pylint: disable=unused-import
 import collections
-import functools
-import io
-import itertools
-import operator as op
-import re
-import timeit
 
-import numpy as np
 import aocd
 
 YEAR = 2023
@@ -31,16 +23,9 @@ class HashMap:
         self.buckets = []
         for _ in range(256):
             self.buckets.append(collections.deque())
-    
+
     def __repr__(self):
         return repr({i: b for i, b in enumerate(self.buckets) if b})
-
-    def __contains__(self, key):
-        h = ahash(key)
-        for k, v in self.buckets[h]:
-            if k == key:
-                return True
-        return True
 
     def __delitem__(self, key):
         h = ahash(key)
@@ -70,7 +55,7 @@ class HashMap:
         else:
             key, val = inst.split('=')
             self[key] = int(val)
-    
+
     def power(self):
         out = 0
         for i, b in enumerate(self.buckets):
@@ -92,7 +77,6 @@ def main():
     hashmap = HashMap()
     for s in inlist:
         hashmap.update(s)
-    print(s, hashmap)
     answer = hashmap.power()
     print(answer)
     aocd.submit(answer, part='b', day=DAY, year=YEAR)
